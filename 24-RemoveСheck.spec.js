@@ -7,7 +7,14 @@ test.only('Remove check', async ({ page }) => {
     await page.locator("//input[@id='user-name']").fill("standard_user");
     await page.locator("//input[@id='password']").fill("secret_sauce");
     await page.click("//input[@id='login-button']")
-    await page.click("(//div[@class='pricebar'])[1]")
-    await page.waitForTimeout(3000);
-    await expect(page.locator("(//div[@class ='pricebar'])[1]//button")).toHaveText("Remove");
+    const products = await page.locator("//div[@class='pricebar']");
+    const productsCount = await products.count();
+    for (let i = 0; i < productsCount; i++) {
+        await products.nth(i).click()
+    }
+    await page.waitForTimeout(4000);
+    const productText = await products.allTextContents();
+    const text = productText.map(text => text.replace(/[^\p{L}]/gu, ''));
+    console.log(text);
+    await expect(text).toEqual(Array(productsCount).fill('Remove'));
 })
